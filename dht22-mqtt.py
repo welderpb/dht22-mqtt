@@ -18,6 +18,7 @@ MQTT_SERVICE_USER = os.getenv('MQTT_SERVICE_USER', None)
 MQTT_SERVICE_PASSWORD = os.getenv('MQTT_SERVICE_PASSWORD', None)
 MQTT_SERVICE_TOPIC = os.getenv('MQTT_SERVICE_TOPIC', 'home/livingroom')
 MQTT_CLIENT_ID = os.getenv('MQTT_CLIENT_ID', os.getenv('HOSTNAME'))
+HA_NAME = os.getenv('HA_NAME', None)
 
 logger = logging.getLogger(MQTT_CLIENT_ID)
 
@@ -38,9 +39,41 @@ if __name__ == "__main__":
 
     MQTT_SERVICE_AUTH = None
 
-    if MQTT_SERVICE_USER != None:
+    if MQTT_SERVICE_USER is not None:
         MQTT_SERVICE_AUTH = {'username':MQTT_SERVICE_USER, 'password':MQTT_SERVICE_PASSWORD}
 
+    if HA_NAME is not None:
+        temp_config = '''{
+          "state_topic": "DHT22/%(HA_NAME)s/temp",
+          "icon": "hass:thermometer",
+          "name": "%(HA_NAME)s Temperature",
+          "unique_id": "dht22_%(HA_NAME)s_temp",
+          "unit_of_measurement": "°C",
+          "device": {
+             "identifiers": ["%(HA_NAME)s"],
+             "manufacturer": "Unknown",
+             "model": "DHT22",
+             "name": "%(HA_NAME)s"
+          }
+        }'''
+        hum_config = '''{
+          "state_topic": "DHT22/%(HA_NAME)s/hum",
+          "icon": "mdi:air-humidifier",
+          "name": "%(HA_NAME)s Humidity",
+          "unique_id": "dht22_%(HA_NAME)s_hum",
+          "unit_of_measurement": "%%",
+          "device": {
+             "identifiers": ["%(HA_NAME)s"],
+             "manufacturer": "Unknown",
+             "model": "DHT22",
+             "name": "%(HA_NAME)s"
+          }
+        }'''
+
+        # Prepare sensors config to be published on MQTT
+        cfgs = [(f"homeassistant/sensor/DHT22/{HA_NAME}_temp/config", temp_config % {"HA_NAME": HA_NAME}),
+                (f"homeassistant/sensor/DHT22/{HA_NAME}_hum/config", hum_config % {"HA_NAME": HA_NAME})]
+        MQTT_SERVICE_TOPIC = f"DHT22/{HA_NAME}"
 
     # Initializes DHT22 on given GPIO pin
     dht22_sensor = adafruit_dht.DHT22(DHT22_PIN)
@@ -63,10 +96,11 @@ if __name__ == "__main__":
 
         try:
             # Prepare messages to be published on MQTT
-            msgs = [(f"{MQTT_SERVICE_TOPIC}/temperature", str(temperature)),
-                    (f"{MQTT_SERVICE_TOPIC}/humidity", str(humidity))]
+            msgs = [(f"{MQTT_SERVICE_TOPIC}/temp", str(temperature)),
+                    (f"{MQTT_SERVICE_TOPIC}/hum", str(humidity))]
 
             # Publish messages on given MQTT broker
+            publish.multiple(cfgs, hostname=MQTT_SERVICE_HOST, port=MQTT_SERVICE_PORT, client_id=MQTT_CLIENT_ID, auth=MQTT_SERVICE_AUTH)
             publish.multiple(msgs, hostname=MQTT_SERVICE_HOST, port=MQTT_SERVICE_PORT, client_id=MQTT_CLIENT_ID, auth=MQTT_SERVICE_AUTH)
         except Exception:
             logger.error("An error occured publishing values to MQTT", exc_info=True)
