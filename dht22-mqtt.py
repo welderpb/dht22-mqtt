@@ -94,13 +94,19 @@ if __name__ == "__main__":
         logger.info(f"[{MQTT_SERVICE_TOPIC}/temperature] --- {temperature}°C ---> [{MQTT_SERVICE_HOST}:{MQTT_SERVICE_PORT}]")
         logger.info(f"[{MQTT_SERVICE_TOPIC}/humidity] ------ {humidity}% ----> [{MQTT_SERVICE_HOST}:{MQTT_SERVICE_PORT}]")
 
+        if humidity > 101:
+            # skip unreal values
+            continue
+
         try:
             # Prepare messages to be published on MQTT
             msgs = [(f"{MQTT_SERVICE_TOPIC}/temp", str(temperature)),
                     (f"{MQTT_SERVICE_TOPIC}/hum", str(humidity))]
 
             # Publish messages on given MQTT broker
+            logger.info("Sending sensor config.")
             publish.multiple(cfgs, hostname=MQTT_SERVICE_HOST, port=MQTT_SERVICE_PORT, client_id=MQTT_CLIENT_ID, auth=MQTT_SERVICE_AUTH)
+            logger.info("Sending sensor data.")
             publish.multiple(msgs, hostname=MQTT_SERVICE_HOST, port=MQTT_SERVICE_PORT, client_id=MQTT_CLIENT_ID, auth=MQTT_SERVICE_AUTH)
         except Exception:
             logger.error("An error occured publishing values to MQTT", exc_info=True)

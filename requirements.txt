@@ -2,7 +2,7 @@ Adafruit-Blinka==4.1.0
 adafruit-circuitpython-dht==3.2.6
 Adafruit-PlatformDetect==2.4.0
 Adafruit-PureIO==1.0.4
-paho-mqtt==1.5.0
+paho-mqtt==1.6.1
 psutil==5.7.0
 pyftdi==0.44.2
 pyserial==3.4
