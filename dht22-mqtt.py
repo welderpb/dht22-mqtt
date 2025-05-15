@@ -49,6 +49,7 @@ if __name__ == "__main__":
           "name": "%(HA_NAME)s Temperature",
           "unique_id": "dht22_%(HA_NAME)s_temp",
           "unit_of_measurement": "°C",
+          "state_class": "total", 
           "device": {
              "identifiers": ["%(HA_NAME)s"],
              "manufacturer": "Unknown",
@@ -62,6 +63,7 @@ if __name__ == "__main__":
           "name": "%(HA_NAME)s Humidity",
           "unique_id": "dht22_%(HA_NAME)s_hum",
           "unit_of_measurement": "%%",
+          "state_class": "total", 
           "device": {
              "identifiers": ["%(HA_NAME)s"],
              "manufacturer": "Unknown",
