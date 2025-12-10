@@ -37,7 +37,7 @@ COPY requirements.txt /opt/requirements.txt
 
 RUN pip3 install --no-cache-dir -r /opt/requirements.txt
 
-COPY --from=builder /opt/libgpiod_pulsein/src/libgpiod_pulsein /usr/local/lib/python3.8/site-packages/adafruit_blinka/microcontroller/bcm283x/pulseio/libgpiod_pulsein
+COPY --from=builder /opt/libgpiod_pulsein/src/libgpiod_pulsein /usr/local/lib/python3.10/site-packages/adafruit_blinka/microcontroller/bcm283x/pulseio/libgpiod_pulsein
 
 COPY dht22-mqtt.py /opt/dht22-mqtt.py
 
