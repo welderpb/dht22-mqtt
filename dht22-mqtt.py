@@ -5,6 +5,7 @@ from pathlib import Path
 
 import adafruit_dht
 import paho.mqtt.publish as publish
+import signal
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s [%(name)s] %(levelname)8s %(message)s')
 
@@ -22,8 +23,19 @@ HA_NAME = os.getenv('HA_NAME', None)
 
 logger = logging.getLogger(MQTT_CLIENT_ID)
 
+class GracefulKiller:
+    def __init__(self):
+        self.kill_now = False
+        signal.signal(signal.SIGINT, self.exit_gracefully)
+        signal.signal(signal.SIGTERM, self.exit_gracefully)
+
+    def exit_gracefully(self, signum, frame):
+        logging.warning('gracefully exitting')
+        self.kill_now = True
+
 
 if __name__ == "__main__":
+    g = GracefulKiller()
 
     # Display config on startup
     logger.debug("#" * 80)
@@ -80,7 +92,7 @@ if __name__ == "__main__":
     # Initializes DHT22 on given GPIO pin
     dht22_sensor = adafruit_dht.DHT22(DHT22_PIN)
 
-    while True:
+    while not g.kill_now:
 
         try:
             # Read from sensor
