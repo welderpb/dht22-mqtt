@@ -99,7 +99,7 @@ if __name__ == "__main__":
             temperature = dht22_sensor.temperature
             humidity = dht22_sensor.humidity
             # Touch file every time data is read (used for liveness probe in k8s)
-            Path('.dht22_updated').touch()
+            #Path('.dht22_updated').touch()
         except RuntimeError as e:
             logger.error(str(e))
             time.sleep(5)
@@ -110,6 +110,7 @@ if __name__ == "__main__":
 
         if humidity > 101:
             # skip unreal values
+            time.sleep(5)
             continue
 
         try:
