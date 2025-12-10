@@ -2,11 +2,10 @@
 # Build environment to get fresh libgpiod_pulsein
 # See also: https://github.com/adafruit/libgpiod_pulsein/pull/1
 #           https://github.com/adafruit/Adafruit_Blinka/issues/210
-FROM python:3.8-slim-buster AS builder
+FROM python:3.10-slim-bookworm AS builder
 
 RUN apt-get update && \
-    apt-get install --no-install-recommends -y libgpiod2 libgpiod-dev git gcc build-essential && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install --no-install-recommends -y libgpiod2 libgpiod-dev git gcc build-essential
 
 WORKDIR /opt
 
@@ -18,7 +17,7 @@ RUN git clone https://github.com/michaellass/libgpiod_pulsein.git && \
 
 ########################
 # Production environment
-FROM python:3.8-slim-buster
+FROM python:3.10-slim-bookworm
 
 ENV DHT22_PIN 4
 ENV DHT22_CHECK_EVERY 10
